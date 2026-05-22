@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#fdf6e3">
+  <title>Tris — Tic-tac-toe online e contro AI</title>
+  <meta name="description" content="Gioca a tris online con un amico tramite link oppure sfida l'AI. Nessuna registrazione, nessun dato salvato. AI imbattibile con algoritmo minimax.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Tris — Tic-tac-toe online e contro AI">
+  <meta property="og:description" content="Gioca a tris online con un amico tramite link oppure sfida l'AI. Nessuna registrazione, nessun dato salvato.">
+  <meta property="og:locale" content="it_IT">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Tris — Tic-tac-toe online e contro AI">
+  <meta name="twitter:description" content="Gioca a tris online con un amico tramite link oppure sfida l'AI. Nessuna registrazione, nessun dato salvato.">
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@700&family=IBM+Plex+Sans:wght@400;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1349876539512798" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <div id="app">
+
+    <!-- Home -->
+    <div id="screen-home" class="screen active">
+      <h1>TRIS</h1>
+      <p class="tagline">Tic-tac-toe, ovunque tu sia</p>
+      <div class="menu">
+        <button id="btn-create" class="btn-primary">🎮 Crea partita remota</button>
+        <button id="btn-join-manual" class="btn-secondary">🔗 Unisciti con codice</button>
+        <button id="btn-vs-ai" class="btn-secondary">🤖 Gioca contro AI</button>
+        <button id="btn-zero" class="btn-ghost">👁 Guarda AI vs AI</button>
+      </div>
+      <div class="ad-unit">
+        <span class="ad-label">Annuncio</span>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-1349876539512798"
+             data-ad-slot="1007469686"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </div>
+    </div>
+
+    <!-- Waiting for opponent -->
+    <div id="screen-waiting" class="screen">
+      <h2>In attesa...</h2>
+      <p class="muted">Condividi il link con il tuo avversario</p>
+      <div class="spinner"></div>
+      <div class="url-box">
+        <input id="share-url" type="text" readonly>
+        <button id="btn-copy" class="btn-icon">Copia</button>
+      </div>
+      <button id="btn-cancel" class="btn-ghost">Annulla</button>
+    </div>
+
+    <!-- Join with code -->
+    <div id="screen-join" class="screen">
+      <h2>Inserisci il codice</h2>
+      <p class="muted">Il codice è di 6 caratteri</p>
+      <input id="join-code" type="text" maxlength="6" placeholder="ABC123" autocomplete="off" autocorrect="off"
+        spellcheck="false" inputmode="text">
+      <div class="btn-row">
+        <button id="btn-back-join" class="btn-secondary">Indietro</button>
+        <button id="btn-do-join" class="btn-primary">Unisciti</button>
+      </div>
+    </div>
+
+    <!-- Difficulty selection -->
+    <div id="screen-difficulty" class="screen">
+      <h2>Difficoltà AI</h2>
+      <p class="muted">Quanto vuoi sfidare l'AI?</p>
+      <div class="difficulty-group">
+        <button id="btn-easy" class="diff-btn">
+          <span class="diff-icon">🎲</span>
+          <span class="diff-name">Facile</span>
+          <span class="diff-desc">Mosse casuali</span>
+        </button>
+        <button id="btn-hard" class="diff-btn">
+          <span class="diff-icon">🧠</span>
+          <span class="diff-name">Difficile</span>
+          <span class="diff-desc">Imbattibile</span>
+        </button>
+      </div>
+      <button id="btn-back-diff" class="btn-ghost">Indietro</button>
+    </div>
+
+    <!-- Game -->
+    <div id="screen-game" class="screen">
+      <div id="scoreboard">
+        <div class="score-item x-side">
+          <div class="score-label" id="score-label-x">X</div>
+          <div class="score-value" id="score-x">0</div>
+        </div>
+        <div class="score-item center">
+          <div class="score-label">Pareggi</div>
+          <div class="score-value" id="score-draw">0</div>
+        </div>
+        <div class="score-item o-side">
+          <div class="score-label" id="score-label-o">O</div>
+          <div class="score-value" id="score-o">0</div>
+        </div>
+      </div>
+
+      <div id="status"></div>
+
+      <div id="board">
+        <div class="cell" data-i="0"></div>
+        <div class="cell" data-i="1"></div>
+        <div class="cell" data-i="2"></div>
+        <div class="cell" data-i="3"></div>
+        <div class="cell" data-i="4"></div>
+        <div class="cell" data-i="5"></div>
+        <div class="cell" data-i="6"></div>
+        <div class="cell" data-i="7"></div>
+        <div class="cell" data-i="8"></div>
+      </div>
+
+      <div id="mode-info"></div>
+
+      <div id="game-actions">
+        <button id="btn-home" class="btn-ghost">Menu</button>
+        <button id="btn-restart" class="btn-primary hidden">Rivincita</button>
+      </div>
+      <div class="ad-unit">
+        <span class="ad-label">Annuncio</span>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-1349876539512798"
+             data-ad-slot="1007469686"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <span class="sep">·</span>
+    <span>Proudly made with <span class="heart">♥</span> in Fossolo -> Bologna</span>
+  </footer>
+
+  <script src="game.js"></script>
+</body>
+
+</html>
