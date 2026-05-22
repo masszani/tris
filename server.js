@@ -20,14 +20,21 @@ const PUBLIC = path.resolve(__dirname, 'public');
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 const COUNTER_FILE = path.join(DATA_DIR, 'counter.json');
 
-let totalGames = 0;
+let totalGames = 0, totalWins = 0, totalDraws = 0;
 try {
   fs.mkdirSync(DATA_DIR, { recursive: true });
-  totalGames = JSON.parse(fs.readFileSync(COUNTER_FILE, 'utf8')).count || 0;
+  const saved = JSON.parse(fs.readFileSync(COUNTER_FILE, 'utf8'));
+  totalGames = saved.count  || 0;
+  totalWins  = saved.wins   || 0;
+  totalDraws = saved.draws  || 0;
 } catch {}
 
 function saveCounter() {
-  try { fs.writeFileSync(COUNTER_FILE, JSON.stringify({ count: totalGames })); } catch {}
+  try { fs.writeFileSync(COUNTER_FILE, JSON.stringify({ count: totalGames, wins: totalWins, draws: totalDraws })); } catch {}
+}
+
+function counterPayload() {
+  return JSON.stringify({ count: totalGames, wins: totalWins, draws: totalDraws });
 }
 
 const MIME = {
@@ -53,14 +60,24 @@ const server = http.createServer((req, res) => {
   const urlPath = req.url.split('?')[0];
   if (urlPath === '/api/counter' && req.method === 'GET') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    return res.end(JSON.stringify({ count: totalGames }));
+    return res.end(counterPayload());
   }
 
   if (urlPath === '/api/counter/increment' && req.method === 'POST') {
-    totalGames++;
-    saveCounter();
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    return res.end(JSON.stringify({ count: totalGames }));
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        const { result } = JSON.parse(body);
+        totalGames++;
+        if (result === 'win')  totalWins++;
+        if (result === 'draw') totalDraws++;
+        saveCounter();
+      } catch {}
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(counterPayload());
+    });
+    return;
   }
 
   if (urlPath === '/api/host') {

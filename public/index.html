@@ -32,7 +32,22 @@
     <div id="screen-home" class="screen active">
       <h1>TRIS</h1>
       <p class="tagline">Tic-tac-toe, ovunque tu sia</p>
-      <p class="total-games-label"><span id="total-games">—</span> partite giocate</p>
+      <div class="global-stats">
+        <div class="gstat">
+          <span class="gstat-value" id="total-games">—</span>
+          <span class="gstat-label">giocate</span>
+        </div>
+        <span class="gstat-sep">·</span>
+        <div class="gstat">
+          <span class="gstat-value" id="total-wins">—</span>
+          <span class="gstat-label">vinte</span>
+        </div>
+        <span class="gstat-sep">·</span>
+        <div class="gstat">
+          <span class="gstat-value" id="total-draws">—</span>
+          <span class="gstat-label">pareggiate</span>
+        </div>
+      </div>
       <div class="menu">
         <button id="btn-create" class="btn-primary">🎮 Crea partita remota</button>
         <button id="btn-join-manual" class="btn-secondary">🔗 Unisciti con codice</button>

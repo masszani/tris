@@ -68,11 +68,34 @@ h2 {
 }
 
 .tagline { color: var(--muted); font-size: .875rem; letter-spacing: .04em; }
-.total-games-label {
+.global-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: .72rem;
+}
+.gstat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+.gstat-value {
+  font-size: .95rem;
+  font-weight: 700;
   color: var(--accent);
-  letter-spacing: .05em;
+  line-height: 1;
+}
+.gstat-label {
+  font-size: .58rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+}
+.gstat-sep {
+  color: var(--border);
+  font-size: .8rem;
+  line-height: 1;
 }
 .muted   { color: var(--muted); font-size: .875rem; text-align: center; }
 

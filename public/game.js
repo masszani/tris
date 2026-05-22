@@ -194,10 +194,11 @@ function endGame(w) {
   }
   g.gameCount++;
   syncScores();
-  fetch('/api/counter/increment', { method: 'POST' })
-    .then(r => r.json())
-    .then(d => { const e = el('total-games'); if (e) e.textContent = d.count.toLocaleString('it'); })
-    .catch(() => {});
+  fetch('/api/counter/increment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ result: w.sym === 'draw' ? 'draw' : 'win' }),
+  }).then(r => r.json()).then(updateGlobalStats).catch(() => {});
   if (g.mode === 'zero') {
     setTimeout(resetGame, 900);
   } else {
@@ -393,6 +394,14 @@ function joinGame(code) {
   connectWs(() => wsSend({ type: 'join', code }));
 }
 
+// ── Global stats ──────────────────────────────────────────
+function updateGlobalStats(d) {
+  const set = (id, v) => { const e = el(id); if (e) e.textContent = v.toLocaleString('it'); };
+  set('total-games', d.count);
+  set('total-wins',  d.wins);
+  set('total-draws', d.draws);
+}
+
 // ── Init ──────────────────────────────────────────────────
 function init() {
   cells().forEach(c => c.addEventListener('click', onCell));
@@ -459,10 +468,7 @@ function init() {
   if (code) joinGame(code.toUpperCase());
 
   syncScores();
-  fetch('/api/counter')
-    .then(r => r.json())
-    .then(d => { const e = el('total-games'); if (e) e.textContent = d.count.toLocaleString('it'); })
-    .catch(() => {});
+  fetch('/api/counter').then(r => r.json()).then(updateGlobalStats).catch(() => {});
 }
 
 document.addEventListener('DOMContentLoaded', init);
