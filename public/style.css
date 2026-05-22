@@ -353,5 +353,41 @@ footer {
 footer .sep { opacity: .4; }
 footer .heart { color: #dc322f; font-size: .7rem; }
 
+/* ── Win overlay ───────────────────────────────────────── */
+#win-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity .35s ease;
+}
+#win-overlay.active { opacity: 1; }
+#fireworks-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.win-text {
+  position: relative;
+  z-index: 1;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(5rem, 28vw, 10rem);
+  font-weight: 700;
+  color: var(--win);
+  letter-spacing: -4px;
+  text-shadow: 0 0 60px rgba(181,137,0,.55), 0 4px 24px rgba(181,137,0,.35);
+  animation: win-pop .45s cubic-bezier(.175,.885,.32,1.275) both;
+}
+@keyframes win-pop {
+  from { transform: scale(.15) rotate(-12deg); opacity: 0; }
+  65%  { transform: scale(1.12) rotate(2deg); }
+  to   { transform: scale(1)    rotate(0deg); opacity: 1; }
+}
+
 /* ── Utilities ─────────────────────────────────────────── */
 .hidden { display: none !important; }

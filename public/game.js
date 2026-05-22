@@ -188,6 +188,10 @@ function endGame(w) {
     if (g.mode === 'pvp') {
       const iWon = w.sym === g.me;
       setStatus(iWon ? '🎉 Hai vinto!' : '😔 Hai perso!', iWon ? 'win' : 'loss');
+      if (iWon) showWinCelebration(w.sym);
+    } else if (g.mode === 'ai') {
+      setStatus(`${w.sym} vince!`, 'win');
+      if (w.sym === g.huSym) showWinCelebration(w.sym);
     } else {
       setStatus(`${w.sym} vince!`, 'win');
     }
@@ -392,6 +396,89 @@ function joinGame(code) {
   g.mode = 'pvp';
   g.code = code;
   connectWs(() => wsSend({ type: 'join', code }));
+}
+
+// ── Win celebration ───────────────────────────────────────
+function showWinCelebration(sym) {
+  const overlay = el('win-overlay');
+  const canvas  = el('fireworks-canvas');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  // restart CSS animation on the text
+  const text = overlay.querySelector('.win-text');
+  text.textContent = `${sym} WIN`;
+  text.style.animation = 'none';
+  text.offsetHeight; // force reflow
+  text.style.animation = '';
+
+  overlay.classList.add('active');
+
+  const ctx = canvas.getContext('2d');
+  const particles = [];
+  let raf;
+
+  const COLORS = ['#dc322f','#268bd2','#2aa198','#b58900','#6c71c4','#d33682','#cb4b16'];
+
+  function burst(x, y) {
+    const col = COLORS[Math.floor(Math.random() * COLORS.length)];
+    const count = 55 + Math.floor(Math.random() * 20);
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i) / count + (Math.random() - .5) * .4;
+      const spd   = Math.random() * 5.5 + 2;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * spd,
+        vy: Math.sin(angle) * spd - 2.5,
+        alpha: 1,
+        color: col,
+        r: Math.random() * 3 + 1.5,
+      });
+    }
+  }
+
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+  burst(cx, cy * 0.45);
+  burst(cx * 0.35, cy * 0.65);
+  burst(cx * 1.65, cy * 0.65);
+
+  let extra = 0;
+  const interval = setInterval(() => {
+    burst(canvas.width  * (.2 + Math.random() * .6),
+          canvas.height * (.1 + Math.random() * .4));
+    if (++extra >= 7) clearInterval(interval);
+  }, 340);
+
+  function tick() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x  += p.vx;
+      p.y  += p.vy;
+      p.vy += 0.1;
+      p.vx *= 0.99;
+      p.alpha -= 0.013;
+      if (p.alpha <= 0) { particles.splice(i, 1); continue; }
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle   = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    raf = requestAnimationFrame(tick);
+  }
+  tick();
+
+  setTimeout(() => {
+    overlay.classList.remove('active');
+    setTimeout(() => {
+      cancelAnimationFrame(raf);
+      clearInterval(interval);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.length = 0;
+    }, 400);
+  }, 3000);
 }
 
 // ── Global stats ──────────────────────────────────────────
