@@ -40,8 +40,11 @@ function serveFile(res, rel) {
 const server = http.createServer((req, res) => {
   const urlPath = req.url.split('?')[0];
   if (urlPath === '/api/host') {
+    const host  = req.headers['x-forwarded-host'] || req.headers.host || `${LOCAL_IP}:${PORT}`;
+    const proto = req.headers['x-forwarded-proto'] || 'http';
+    const origin = process.env.APP_URL || `${proto}://${host}`;
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    return res.end(JSON.stringify({ origin: `http://${LOCAL_IP}:${PORT}` }));
+    return res.end(JSON.stringify({ origin }));
   }
   serveFile(res, urlPath === '/' ? 'index.html' : urlPath.slice(1));
 });
