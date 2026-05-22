@@ -353,6 +353,93 @@ footer {
 footer .sep { opacity: .4; }
 footer .heart { color: #dc322f; font-size: .7rem; }
 
+/* ── Leaderboard screen ────────────────────────────────── */
+#lb-table {
+  width: 100%;
+  max-width: 340px;
+  border-collapse: collapse;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .8rem;
+}
+#lb-table th {
+  font-size: .6rem;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  color: var(--muted);
+  padding: 0 8px 8px;
+  text-align: left;
+  border-bottom: 1.5px solid var(--border);
+}
+#lb-table th:first-child { width: 28px; }
+#lb-table th:last-child  { text-align: right; }
+#lb-table td {
+  padding: 9px 8px;
+  color: var(--strong);
+  border-bottom: 1px solid var(--surface2);
+}
+#lb-table td:first-child { color: var(--muted); font-size: .7rem; }
+#lb-table td:last-child  { text-align: right; }
+#lb-table .lb-wins       { font-weight: 700; color: var(--accent); }
+#lb-table tr.lb-new td   { background: rgba(181,137,0,.08); color: var(--win); }
+#lb-table tr.lb-new .lb-wins { color: var(--win); }
+#lb-table tr:last-child td { border-bottom: none; }
+
+/* ── Leaderboard name prompt ───────────────────────────── */
+.lb-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(253,246,227,.88);
+  backdrop-filter: blur(4px);
+  animation: fadein .2s ease;
+}
+.lb-overlay.hidden { display: none !important; }
+.lb-prompt-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  background: var(--surface);
+  border: 2px solid var(--win);
+  border-radius: var(--r);
+  padding: 32px 28px;
+  width: min(340px, 90vw);
+  box-shadow: 0 8px 40px rgba(181,137,0,.2);
+  animation: win-pop .35s cubic-bezier(.175,.885,.32,1.275) both;
+}
+.lb-prompt-rank {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--win);
+  line-height: 1;
+}
+.lb-prompt-sub {
+  font-size: .8rem;
+  color: var(--muted);
+  letter-spacing: .04em;
+}
+#lb-name {
+  width: 100%;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: var(--r);
+  color: var(--strong);
+  padding: 14px;
+  font-size: 1.3rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  transition: border-color .15s;
+}
+#lb-name:focus { outline: none; border-color: var(--win); }
+#lb-name::placeholder { color: var(--muted); font-weight: 400; letter-spacing: 2px; }
+
 /* ── Win overlay ───────────────────────────────────────── */
 #win-overlay {
   position: fixed;

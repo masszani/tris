@@ -53,6 +53,7 @@
         <button id="btn-join-manual" class="btn-secondary">🔗 Unisciti con codice</button>
         <button id="btn-vs-ai" class="btn-secondary">🤖 Gioca contro AI</button>
         <button id="btn-zero" class="btn-ghost">👁 Guarda AI vs AI</button>
+        <button id="btn-leaderboard" class="btn-ghost">🏆 Classifica</button>
       </div>
       <div class="ad-unit">
         <span class="ad-label">Annuncio</span>
@@ -64,6 +65,19 @@
              data-full-width-responsive="true"></ins>
         <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
       </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div id="screen-leaderboard" class="screen">
+      <h2>🏆 Classifica</h2>
+      <p class="muted">Top 10 — vittorie vs AI</p>
+      <table id="lb-table">
+        <thead>
+          <tr><th>#</th><th>Nome</th><th>Vittorie</th><th>Data</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <button id="btn-lb-close" class="btn-secondary">Chiudi</button>
     </div>
 
     <!-- Waiting for opponent -->
@@ -162,6 +176,17 @@
     <span class="sep">·</span>
     <span>Proudly made with <span class="heart">♥</span> in Fossolo -> Bologna</span>
   </footer>
+
+  <!-- Name prompt overlay -->
+  <div id="lb-prompt" class="lb-overlay hidden">
+    <div class="lb-prompt-box">
+      <div class="lb-prompt-rank" id="lb-rank-msg"></div>
+      <p class="lb-prompt-sub">Inserisci il tuo nome</p>
+      <input id="lb-name" type="text" maxlength="12" placeholder="IL TUO NOME"
+        autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text">
+      <button id="lb-submit" class="btn-primary">Salva</button>
+    </div>
+  </div>
 
   <!-- Win celebration -->
   <div id="win-overlay">

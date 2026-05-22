@@ -398,6 +398,83 @@ function joinGame(code) {
   connectWs(() => wsSend({ type: 'join', code }));
 }
 
+// ── Leaderboard ───────────────────────────────────────────
+function getSessionWins() {
+  if (g.mode === 'ai') return g.scores[g.huSym];
+  return 0;
+}
+
+function renderLeaderboard(board, newIndex) {
+  const tbody = document.querySelector('#lb-table tbody');
+  tbody.innerHTML = '';
+  if (!board.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">Nessun record ancora</td></tr>';
+    return;
+  }
+  board.forEach((entry, i) => {
+    const tr = document.createElement('tr');
+    if (i === newIndex) tr.classList.add('lb-new');
+    tr.innerHTML = `<td>${i + 1}</td><td>${entry.name}</td><td class="lb-wins">${entry.wins}</td><td>${entry.date}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function showLeaderboard(board, newIndex, onClose) {
+  renderLeaderboard(board, newIndex ?? -1);
+  show('leaderboard');
+  const btn = el('btn-lb-close');
+  const handler = () => { btn.removeEventListener('click', handler); onClose(); };
+  btn.addEventListener('click', handler);
+}
+
+function showNamePrompt(wins, board, onDone) {
+  const rank = board.findIndex(e => wins > e.wins);
+  const pos  = rank === -1 ? board.length + 1 : rank + 1;
+  el('lb-rank-msg').textContent = `#${pos}`;
+  const input = el('lb-name');
+  input.value = '';
+  el('lb-prompt').classList.remove('hidden');
+  setTimeout(() => input.focus(), 50);
+
+  function submit() {
+    const name = input.value.trim().toUpperCase() || 'ANONIMO';
+    el('lb-prompt').classList.add('hidden');
+    fetch('/api/leaderboard', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, wins }),
+    })
+      .then(r => r.json())
+      .then(({ board: b, newIndex: ni }) => showLeaderboard(b, ni, onDone))
+      .catch(onDone);
+  }
+
+  const btn = el('lb-submit');
+  const keyHandler = e => { if (e.key === 'Enter') btn.click(); };
+  input.addEventListener('keydown', keyHandler);
+
+  const handler = () => {
+    btn.removeEventListener('click', handler);
+    input.removeEventListener('keydown', keyHandler);
+    submit();
+  };
+  btn.addEventListener('click', handler);
+}
+
+function checkLeaderboard(wins, onDone) {
+  fetch('/api/leaderboard')
+    .then(r => r.json())
+    .then(board => {
+      const qualifies = board.length < 10 || wins >= board[board.length - 1].wins;
+      if (qualifies) {
+        showNamePrompt(wins, board, onDone);
+      } else {
+        onDone();
+      }
+    })
+    .catch(onDone);
+}
+
 // ── Win celebration ───────────────────────────────────────
 function showWinCelebration(sym) {
   const overlay = el('win-overlay');
@@ -545,9 +622,22 @@ function init() {
   el('btn-home').addEventListener('click', () => {
     clearTimeout(g.zeroTimer);
     if (g.ws) { g.ws.close(); g.ws = null; }
+    const wins = getSessionWins();
+    const mode = g.mode;
     g.mode = null;
     g.me = null;
-    show('home');
+    if (wins > 0 && mode === 'ai') {
+      checkLeaderboard(wins, () => show('home'));
+    } else {
+      show('home');
+    }
+  });
+
+  el('btn-leaderboard').addEventListener('click', () => {
+    fetch('/api/leaderboard')
+      .then(r => r.json())
+      .then(board => showLeaderboard(board, -1, () => show('home')))
+      .catch(() => show('home'));
   });
 
   // Auto-join from URL query string

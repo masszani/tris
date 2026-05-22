@@ -18,9 +18,11 @@ const LOCAL_IP = getLocalIP();
 const PORT = process.env.PORT || 3000;
 const PUBLIC = path.resolve(__dirname, 'public');
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
-const COUNTER_FILE = path.join(DATA_DIR, 'counter.json');
+const COUNTER_FILE     = path.join(DATA_DIR, 'counter.json');
+const LEADERBOARD_FILE = path.join(DATA_DIR, 'leaderboard.json');
 
 let totalGames = 0, totalWins = 0, totalDraws = 0;
+let leaderboard = [];
 try {
   fs.mkdirSync(DATA_DIR, { recursive: true });
   const saved = JSON.parse(fs.readFileSync(COUNTER_FILE, 'utf8'));
@@ -28,9 +30,14 @@ try {
   totalWins  = saved.wins   || 0;
   totalDraws = saved.draws  || 0;
 } catch {}
+try { leaderboard = JSON.parse(fs.readFileSync(LEADERBOARD_FILE, 'utf8')); } catch {}
 
 function saveCounter() {
   try { fs.writeFileSync(COUNTER_FILE, JSON.stringify({ count: totalGames, wins: totalWins, draws: totalDraws })); } catch {}
+}
+
+function saveLeaderboard() {
+  try { fs.writeFileSync(LEADERBOARD_FILE, JSON.stringify(leaderboard)); } catch {}
 }
 
 function counterPayload() {
@@ -76,6 +83,32 @@ const server = http.createServer((req, res) => {
       } catch {}
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(counterPayload());
+    });
+    return;
+  }
+
+  if (urlPath === '/api/leaderboard' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify(leaderboard));
+  }
+
+  if (urlPath === '/api/leaderboard' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        const { name, wins } = JSON.parse(body);
+        const entry = { name: String(name).slice(0, 12), wins: Math.max(0, parseInt(wins) || 0), date: new Date().toISOString().slice(0, 10) };
+        leaderboard.push(entry);
+        leaderboard.sort((a, b) => b.wins - a.wins);
+        leaderboard = leaderboard.slice(0, 10);
+        const newIndex = leaderboard.findIndex(e => e === entry);
+        saveLeaderboard();
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ board: leaderboard, newIndex }));
+      } catch {
+        res.writeHead(400); res.end('Bad request');
+      }
     });
     return;
   }
