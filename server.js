@@ -17,6 +17,18 @@ const LOCAL_IP = getLocalIP();
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC = path.resolve(__dirname, 'public');
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+const COUNTER_FILE = path.join(DATA_DIR, 'counter.json');
+
+let totalGames = 0;
+try {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+  totalGames = JSON.parse(fs.readFileSync(COUNTER_FILE, 'utf8')).count || 0;
+} catch {}
+
+function saveCounter() {
+  try { fs.writeFileSync(COUNTER_FILE, JSON.stringify({ count: totalGames })); } catch {}
+}
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -39,6 +51,18 @@ function serveFile(res, rel) {
 
 const server = http.createServer((req, res) => {
   const urlPath = req.url.split('?')[0];
+  if (urlPath === '/api/counter' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ count: totalGames }));
+  }
+
+  if (urlPath === '/api/counter/increment' && req.method === 'POST') {
+    totalGames++;
+    saveCounter();
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ count: totalGames }));
+  }
+
   if (urlPath === '/api/host') {
     const host  = req.headers['x-forwarded-host'] || req.headers.host || `${LOCAL_IP}:${PORT}`;
     const proto = req.headers['x-forwarded-proto'] || 'http';

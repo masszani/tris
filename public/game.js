@@ -194,6 +194,10 @@ function endGame(w) {
   }
   g.gameCount++;
   syncScores();
+  fetch('/api/counter/increment', { method: 'POST' })
+    .then(r => r.json())
+    .then(d => { const e = el('total-games'); if (e) e.textContent = d.count.toLocaleString('it'); })
+    .catch(() => {});
   if (g.mode === 'zero') {
     setTimeout(resetGame, 900);
   } else {
@@ -455,6 +459,10 @@ function init() {
   if (code) joinGame(code.toUpperCase());
 
   syncScores();
+  fetch('/api/counter')
+    .then(r => r.json())
+    .then(d => { const e = el('total-games'); if (e) e.textContent = d.count.toLocaleString('it'); })
+    .catch(() => {});
 }
 
 document.addEventListener('DOMContentLoaded', init);

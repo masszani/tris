@@ -66,6 +66,12 @@ h2 {
 }
 
 .tagline { color: var(--muted); font-size: .875rem; letter-spacing: .04em; }
+.total-games-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem;
+  color: var(--accent);
+  letter-spacing: .05em;
+}
 .muted   { color: var(--muted); font-size: .875rem; text-align: center; }
 
 /* ── Buttons ───────────────────────────────────────────── */
