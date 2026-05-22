@@ -306,6 +306,8 @@ button:active { transform: scale(.95); }
   border: 1px solid var(--border);
   min-height: 100px;
 }
+.ad-unit-banner { align-items: center; }
+.ad-unit-banner ins { min-height: unset; border: none; background: none; }
 
 /* ── Footer ────────────────────────────────────────────── */
 footer {
